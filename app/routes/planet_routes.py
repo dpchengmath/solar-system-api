@@ -23,10 +23,10 @@ def get_one_planet(planet_id):
     planet = validate_planet(planet_id) 
 
     for planet in planets:
-        if planet.id == planet_id:
+        if planet.id == int(planet_id):
             return {
                 "id": planet.id,
-                "title": planet.title,
+                "name": planet.name,
                 "description": planet.description,
             }
 
