@@ -8,12 +8,26 @@ planets_bp = Blueprint("planets_bp", __name__, url_prefix="/planets")
 
 @planets_bp.get("")
 def get_all_planets():
-    query = db.select(Planet).order_by(Planet.id)
+    query = db.select(Planet)
     planets = db.session.scalars(query)
-    # We could also write the line above as:
-    # books = db.session.execute(query).scalars()
+
+    name_query = request.args.get("name")
+    if name_query:
+        planets = Planet.query.filter_by(name=name_query)
+    
+    description_query = request.args.get("description")
+    if description_query:
+        planets = Planet.query.filter_by(description=description_query)
+
+    diameter_query = request.args.get("diameter")
+    if diameter_query:
+        planets = Planet.query.filter_by(diameter=diameter_query)
+
+    else:
+        planets = Planet.query.all()
 
     planet_response = []
+
     for planet in planets:
         planet_response.append(
             {
