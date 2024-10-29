@@ -9,22 +9,21 @@ planets_bp = Blueprint("planets_bp", __name__, url_prefix="/planets")
 @planets_bp.get("")
 def get_all_planets():
     query = db.select(Planet)
-    planets = db.session.scalars(query)
 
     name_query = request.args.get("name")
     if name_query:
-        planets = Planet.query.filter_by(name=name_query)
+        query = query.where(Planet.name.ilike(f"%{name_query}%"))
     
     description_query = request.args.get("description")
     if description_query:
-        planets = Planet.query.filter_by(description=description_query)
+        query = query.where(Planet.description.ilike(f"%{description_query}%"))
 
     diameter_query = request.args.get("diameter")
     if diameter_query:
-        planets = Planet.query.filter_by(diameter=diameter_query)
+        query = query.where(Planet.diameter.ilike(f"%{diameter_query}%"))
 
-    else:
-        planets = Planet.query.all()
+    query = query.order_by(Planet.id)
+    planets = db.session.scalars(query)
 
     planet_response = []
 
