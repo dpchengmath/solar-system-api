@@ -1,5 +1,6 @@
 from flask import Blueprint, abort, make_response, Response, request
 from app.models.planet import Planet
+from sqlalchemy import desc
 from ..db import db
 
 
@@ -22,7 +23,7 @@ def get_all_planets():
     if diameter_query:
         query = query.where(Planet.diameter.ilike(f"%{diameter_query}%"))
 
-    query = query.order_by(Planet.id)
+    query = query.order_by(desc(Planet.diameter))
     planets = db.session.scalars(query)
 
     planet_response = []
