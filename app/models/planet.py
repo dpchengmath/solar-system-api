@@ -7,6 +7,24 @@ class Planet(db.Model):
     description: Mapped[str]
     diameter: Mapped[int]
 
+
+
+    def to_dict(self):
+        planet_as_dict = {}
+        planet_as_dict["id"] = self.id
+        planet_as_dict["name"] = self.name
+        planet_as_dict["description"] = self.description
+        planet_as_dict.diameter["diameter"] = self.diameter
+
+        return planet_as_dict
+    
+    @classmethod
+    def from_dict(cls, planet_data):
+        new_planet = cls(title=planet_data["title"],
+                       description=planet_data["description"])
+
+        return new_planet
+
 # class Planet:
 #     def __init__(self, id, name, description):
 #         self.id = id
