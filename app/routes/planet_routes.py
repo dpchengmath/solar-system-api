@@ -27,57 +27,38 @@ def get_all_planets():
     query = query.order_by(desc(Planet.diameter))
     planets = db.session.scalars(query)
 
-    planet_response = []
+    planets_response = [planet.to_dict() for planet in planets]
 
-    for planet in planets:
-        planet_response.append(
-            {
-                "id": planet.id,
-                "name": planet.name,
-                "description": planet.description,
-                "diameter": planet.diameter
-            }
-        )
-    return planet_response
+    return planets_response
 
 
 @planets_bp.post("")
 def create_planet():
     request_body = request.get_json()
-    name = request_body["name"]
-    description = request_body["description"]
-    diameter = request_body["diameter"]
 
-    new_planet = Planet(name=name, description=description, diameter=diameter)
+    try:
+        new_planet = Planet.from_dict(request_body)
+    except KeyError as e:
+        response = {"message": f"Invalid request: missing {e.args[0]}"}
+        abort(make_response(response, 400))
+
     db.session.add(new_planet)
     db.session.commit()
 
-    response = {
-
-        "id": new_planet.id,
-        "name": new_planet.name,
-        "description": new_planet.description,
-        "diameter": new_planet.diameter
-    }
+    response = new_planet.to_dict()
     return response, 201
 
 
 @planets_bp.get("/<planet_id>")
 def get_one_planet(planet_id):
-    planet = validate_planet(planet_id) 
+    planet = validate_model(Planet, planet_id) 
 
-    return {
-
-        "id": planet.id,
-        "name": planet.name,
-        "description": planet.description,
-        "diameter": planet.diameter
-    }
+    return planet.to_dict()
 
 
 @planets_bp.put("/<planet_id>")
 def update_planet(planet_id):
-    planet = validate_planet(planet_id)
+    planet = validate_model(Planet, planet_id)
     request_body = request.get_json()
 
     planet.name = request_body["name"]
@@ -90,25 +71,8 @@ def update_planet(planet_id):
 
 @planets_bp.delete("/<planet_id>")
 def delete_planet(planet_id):
-    planet = validate_planet(planet_id)
+    planet = validate_model(Planet, planet_id)
     db.session.delete(planet)
     db.session.commit()
 
     return Response(status=204, mimetype="application/json")
-
-
-def validate_planet(planet_id):
-    try:
-        planet_id = int(planet_id)
-    except:
-        response = {"message": f"planet {planet_id} invalid"}
-        abort(make_response(response, 400))
-
-    query = db.select(Planet).where(Planet.id == planet_id)
-    planet = db.session.scalar(query)
-
-    if not planet:
-        response = {"message": f"planet {planet_id} not found"}
-        abort(make_response(response, 404))
-    
-    return planet 

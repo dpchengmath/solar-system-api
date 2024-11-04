@@ -1,27 +1,29 @@
 from sqlalchemy.orm import Mapped, mapped_column
 from ..db import db
 
+
 class Planet(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     name: Mapped[str]
     description: Mapped[str]
     diameter: Mapped[int]
 
-
-
     def to_dict(self):
         planet_as_dict = {}
         planet_as_dict["id"] = self.id
         planet_as_dict["name"] = self.name
         planet_as_dict["description"] = self.description
-        planet_as_dict.diameter["diameter"] = self.diameter
+        planet_as_dict["diameter"] = self.diameter
 
         return planet_as_dict
     
     @classmethod
     def from_dict(cls, planet_data):
-        new_planet = cls(title=planet_data["title"],
-                       description=planet_data["description"])
+        new_planet = cls(
+            name=planet_data["name"],
+            description=planet_data["description"],
+            diameter=planet_data["diameter"]
+        )
 
         return new_planet
 
