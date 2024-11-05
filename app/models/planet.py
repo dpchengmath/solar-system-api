@@ -1,4 +1,6 @@
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import ForeignKey
+from typing import Optional
 from ..db import db
 
 class Planet(db.Model):
@@ -6,6 +8,8 @@ class Planet(db.Model):
     name: Mapped[str]
     description: Mapped[str]
     diameter: Mapped[int]
+    explorer_id: Mapped[Optional[int]] = mapped_column(ForeignKey("explorer.id"))
+    explorer: Mapped[list["Explorer"]] = relationship(back_populates="explorer")
 
 
 
@@ -14,7 +18,8 @@ class Planet(db.Model):
         planet_as_dict["id"] = self.id
         planet_as_dict["name"] = self.name
         planet_as_dict["description"] = self.description
-        planet_as_dict.diameter["diameter"] = self.diameter
+        planet_as_dict["diameter"] = self.diameter
+        
 
         return planet_as_dict
     
